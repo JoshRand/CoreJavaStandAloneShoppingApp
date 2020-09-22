@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.shoppingapp.model.Customer;
 import com.shoppingapp.model.Item;
+import com.shoppingapp.model.ShoppingCart;
 import com.shoppingapp.utility.ColorsUtility;
 
 public class ConsolePrinterUtility
@@ -17,10 +18,10 @@ public class ConsolePrinterUtility
 		System.out.println("+----------------------------+" + cu.RESET);
 		System.out.println("1. Create New Account");
 		System.out.println("2. Login");
-		System.out.println("3. Exit.");
+		System.out.println("3. Guest");
+		System.out.println("4. Exit.");
 		System.out.println();
-		enterChoice(3);
-		//System.out.println("Enter Choice (1,2, or 3) :");
+		enterChoice(4, true);
 		
 	}
 	public void login()
@@ -31,7 +32,7 @@ public class ConsolePrinterUtility
 		System.out.println("+----------------------+" + cu.RESET);
 		
 	}
-	public void shop(List<Item> inventory)
+	public void shop(List<Item> inventory, ShoppingCart cart)
 	{
 		int signOutNumber = 0;
 		int itemNameLength = 0;
@@ -43,8 +44,10 @@ public class ConsolePrinterUtility
 			if(item.getItemCode().length() >= itemCodeLength)
 				itemCodeLength = item.getItemCode().length();
 		}
-		System.out.println(cu.BLUE_BRIGHT + "+----------------------+");
-		System.out.println("|  WELCOME Customer!!! |");
+		System.out.printf(cu.BLUE_BRIGHT + "+----------------------+  Cart %s",
+				(cart.size() == 0) ? "Empty\n" : String.format("$%.2f", cart.total())+"\n");
+		System.out.printf("|  WELCOME Customer!!! |  \\__/\\ %d %s",
+				cart.size(),(cart.size() > 1 || cart.size() == 0) ? "items\n" : "item\n");
 		System.out.println("+----------------------+" + cu.RESET);
 		System.out.print("    Name"+ spaces(itemNameLength-4));
 		System.out.print("Code"+spaces(itemCodeLength-4));
@@ -54,14 +57,12 @@ public class ConsolePrinterUtility
 		{
 			item = inventory.get(i);
 			System.out.println(""+(i+1)+".  "+item.getItemName() +spaces(itemNameLength-item.getItemName().length())+ item.getItemCode() 
-			+ spaces(itemCodeLength-item.getItemCode().length()) + "$" +String.format("%.2f",item.getItemPrice()));
+				+ spaces(itemCodeLength-item.getItemCode().length()) + "$" +String.format("%.2f",item.getItemPrice()));
 			signOutNumber = i+2;
 		}
 		System.out.println(""+signOutNumber+".  Sign Out");
 		System.out.println();
-		enterChoice(signOutNumber);
-		//System.out.println("Enter Choice (1,2,3,4,5 or 6) :");
-		
+		enterChoice(signOutNumber, false);
 	}
 	public String spaces(int i)
 	{
@@ -85,9 +86,9 @@ public class ConsolePrinterUtility
 	{
 		System.out.println(cu.RED_BRIGHT + "Invalid Option, please choose from the list..." + cu.RESET);
 	}
-	public void enterChoice(int num)
+	public void enterChoice(int num, boolean option)
 	{
-		System.out.print(cu.GREEN_BRIGHT + "Enter Choice (");
+		System.out.printf(cu.GREEN_BRIGHT + "%s",(option) ? "Enter Choice (" : "Add to Cart (");
 		for(int i = 0; i <= num - 2 ; i++)
 		{
 			if(i <= num - 3) 
@@ -111,10 +112,7 @@ public class ConsolePrinterUtility
 		System.out.println("+-----  CUSTOMER  -----+");
 		System.out.println(" U NAME: " + cust.getUserName());
 		System.out.println(" U PASS: " + cust.getUserPass() + cu.RESET);
-		
-		
 		System.out.println();
-		//System.out.println("Enter Choice (1,2,3,4,5 or 6) :");
 		
 	}
 }

@@ -4,7 +4,17 @@ public class Item
 {
 	private String itemName;
 	private String itemCode;
-	private double itemPrice;
+	private double itemPrice = 0;
+	private int itemCount = 0;
+	
+	public int getItemCount()
+	{
+		return itemCount;
+	}
+	public void setItemCount(int itemCount)
+	{
+		this.itemCount = itemCount;
+	}
 	public String getItemName()
 	{
 		return itemName;
