@@ -60,10 +60,52 @@ public class ConsolePrinterUtility
 				+ spaces(itemCodeLength-item.getItemCode().length()) + "$" +String.format("%.2f",item.getItemPrice()));
 			signOutNumber = i+2;
 		}
-		System.out.println(""+signOutNumber+".  Sign Out");
 		System.out.println();
-		enterChoice(signOutNumber, false);
+		System.out.println(""+signOutNumber+".  Sign Out");
+		System.out.println(""+(signOutNumber + 1)+".  Check Cart");
+		System.out.println();
+		enterChoice(signOutNumber - 1, false);
 	}
+	
+	public void cart(ShoppingCart cart)
+	{
+		int signOutNumber = 0;
+		int itemNameLength = 0;
+		int itemCodeLength = 0;
+		int itemCountLength = 0;
+		System.out.println(cart.getItemCountLength());
+		for (Item item : cart.getItems())
+		{
+			if(item.getItemName().length() >= itemNameLength) 
+				itemNameLength = item.getItemName().length();
+			if(item.getItemCode().length() >= itemCodeLength)
+				itemCodeLength = item.getItemCode().length();
+		}
+		System.out.printf(cu.BLUE_BRIGHT + "+----------------------+  Cart %s",
+				(cart.size() == 0) ? "Empty\n" : String.format("$%.2f", cart.total())+"\n");
+		System.out.printf("|   Cart Information   |  \\__/\\ %d %s",
+				cart.size(),(cart.size() > 1 || cart.size() == 0) ? "items\n" : "item\n");
+		System.out.println("+----------------------+" + cu.RESET);
+		System.out.print(spaces(cart.getItemCountLength())+"  Name"+ spaces(itemNameLength-4));
+		System.out.print("Code"+spaces(itemCodeLength-4));
+		System.out.print("Price");
+		System.out.println();
+		for (int i = 0; i < cart.getItems().size(); ++i)
+		{
+			item = cart.getItems().get(i);
+			itemCountLength = String.format("%d",item.getItemCount()).length();
+			System.out.println(""+(item.getItemCount())+"x."+spaces(cart.getItemCountLength()-itemCountLength)+item.getItemName() +spaces(itemNameLength-item.getItemName().length())+ item.getItemCode() 
+				+ spaces(itemCodeLength-item.getItemCode().length()) + "$" +String.format("%.2f",item.getItemPrice()*item.getItemCount()));
+			signOutNumber = i+2;
+		}
+		System.out.println();
+		System.out.println(spaces(itemNameLength+itemCodeLength+cart.getItemCountLength())+"Total:"+"$" +String.format("%.2f",cart.total()));
+		System.out.println(""+1+".  Check out");
+		System.out.println(""+2+".  Continue Shopping");
+		System.out.println();
+		enterChoice(signOutNumber - 1, false);
+	}
+	
 	public String spaces(int i)
 	{
 		String space = " ";
@@ -72,20 +114,24 @@ public class ConsolePrinterUtility
 		
 		return space;
 	}
+	
 	public void recentTrans()
 	{
 		System.out.println(cu.BLUE_BRIGHT + "+------------------------+");
 		System.out.println("| 5 Recent Transactions: |");
 		System.out.println("+------------------------+" + cu.RESET);
 	}
+	
 	public void invalidCreds()
 	{
 		System.out.println(cu.RED_BRIGHT +  "Invalid Credentials. Try Again!"  + cu.RESET);
 	}
+	
 	public void invalidOption()
 	{
 		System.out.println(cu.RED_BRIGHT + "Invalid Option, please choose from the list..." + cu.RESET);
 	}
+	
 	public void enterChoice(int num, boolean option)
 	{
 		System.out.printf(cu.GREEN_BRIGHT + "%s",(option) ? "Enter Choice (" : "Add to Cart (");
@@ -104,6 +150,7 @@ public class ConsolePrinterUtility
 		System.out.print(") :" + cu.RESET);
 		System.out.println();
 	}
+	
 	public void displayCustomerInfo(Customer cust)
 	{
 		System.out.println(cu.YELLOW_BRIGHT + "+----------------------+");

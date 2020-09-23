@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import com.shoppingapp.model.Customer;
+import com.shoppingapp.model.Invoice;
 import com.shoppingapp.model.Item;
 import com.shoppingapp.model.ShoppingCart;
 import com.shoppingapp.service.CustomerService;
@@ -14,25 +15,31 @@ import com.shoppingapp.utility.ConsolePrinterUtility;
 
 public class ShoppingController
 {
+	
 	public List<Item> inventory = new ArrayList<Item>();
+	public List<Customer> custList = new ArrayList<Customer>();
+	public List<Invoice> invList = new ArrayList<Invoice>();
+	{
+		// Collections Inventory and Users before File streams and MySQL
+		inventory.add(new Item("Jerry", "Je1", 2000.20));
+		inventory.add(new Item("G-Pro Wireless", "Gpw1", 150.30));
+		inventory.add(new Item("Haiti", "Ha1", 69.50));
+		inventory.add(new Item("Model D", "Mo1", 73.50));
+		custList.add(new Customer("1","1"));
+		custList.add(new Customer("2","2"));
+
+	}
+	
 	
 	public ConsolePrinterUtility cpu = new ConsolePrinterUtility();
 	public Customer cust = null;
 	public ShoppingCart cart = new ShoppingCart();
 	public Scanner scan = null;
 	
-	public int option = 0;
-	public State state = State.LOGGED_OUT;//State state = State.LOGGED_IN;
 	public CustomerService custService = new CustomerServiceImpl();
 	
-	{
-		// test inventory for items before sql
-		inventory.add(new Item("Jerry", "Je1", 2000.20));
-		inventory.add(new Item("G-Pro Wireless", "Gpw1", 150.30));
-		inventory.add(new Item("Haiti", "Ha1", 69.50));
-		inventory.add(new Item("Model D", "Mo1", 73.50));
-	}
-	
+	public int option = 0;
+	public boolean showCart = false;
 	public enum State
 	{
 		LOGGED_IN,
@@ -41,6 +48,8 @@ public class ShoppingController
 		CREATE_ACCOUNT,
 		
 	}
+	public State state = State.LOGGED_OUT;//State state = State.LOGGED_IN;
+	
 	
 	public void doShopping()
 	{
@@ -64,17 +73,35 @@ public class ShoppingController
 					
 					break;
 				case LOGGED_IN:
-					cpu.shop(inventory, cart);
-					try
+					if(showCart)
 					{
-						option = scan.nextInt();
-						scan.nextLine();
-						menuHandler(option);
-					} catch (Exception e)
-					{
-						cpu.invalidOption();
+						cpu.cart(cart);
+						try
+						{
+							option = scan.nextInt();
+							scan.nextLine();
+							menuHandler(option);
+						} catch (Exception e)
+						{
+							cpu.invalidOption();
+						}
+						break;
 					}
-					break;
+					else
+					{
+						cpu.shop(inventory, cart);
+						try
+						{
+							option = scan.nextInt();
+							scan.nextLine();
+							menuHandler(option);
+						} catch (Exception e)
+						{
+							cpu.invalidOption();
+						}
+						break;
+					}
+					
 				case GUEST:
 					cpu.shop(inventory, cart);
 					try
@@ -112,32 +139,54 @@ public class ShoppingController
 					exit();
 					break;
 			}
-		else if(state == State.LOGGED_IN)
-			switch (option)
+		else if(state == State.LOGGED_IN) 
+		{
+			if(!showCart)
 			{
-				case 1:
-					cart.add(inventory.get(option - 1));
-					break;
-				case 2:
-					cart.add(inventory.get(option - 1));
-					break;
-				case 3:
-					cart.add(inventory.get(option - 1));
-					break;
-				case 4:
-					cart.add(inventory.get(option - 1));
-					
-					for (Item item : inventory)
-					{
-						System.out.println(item.getItemCount());
-					}
-					break;
-				case 5:
-					cust = null;
-					cart = new ShoppingCart();
-					state = State.LOGGED_OUT;
-					break;
+				switch (option)
+				{
+					case 1:
+						cart.add(inventory.get(option - 1));
+						break;
+					case 2:
+						cart.add(inventory.get(option - 1));
+						break;
+					case 3:
+						cart.add(inventory.get(option - 1));
+						break;
+					case 4:
+						cart.add(inventory.get(option - 1));
+						
+						for (Item item : inventory)
+						{
+							System.out.println(item.getItemCount());
+						}
+						break;
+					case 5:
+						cust = null;
+						cart = new ShoppingCart();
+						state = State.LOGGED_OUT;
+						break;
+					case 6:
+						showCart = !showCart;
+						break;
+				}
 			}
+			else
+			{
+				switch (option)
+				{
+					case 1:
+						// check out
+						
+						break;
+					case 2:
+						showCart = !showCart;
+						break;
+					
+				}
+			}
+		}	
 		else if(state == State.GUEST)
 			switch (option)
 			{
@@ -163,6 +212,9 @@ public class ShoppingController
 					cart = new ShoppingCart();
 					state = State.LOGGED_OUT;
 					break;
+				case 6:
+					showCart = !showCart;
+					break;
 			}
 	}
 	
@@ -173,10 +225,17 @@ public class ShoppingController
 		String uPass = "";
 		try
 		{
+			System.out.println("Email:");
 			uName = scan.nextLine();
+			System.out.println("Password:");
 			uPass = scan.nextLine();
 			System.out.println();
-			cust = custService.login(uName, uPass);
+			// Login with Collections
+			cust = custService.login(uName, uPass, custList);
+			// Login with filestream/files
+			//
+			// Login with MySQL UserDao
+			//cust = custService.login(uName, uPass);
 		} catch (Exception e)
 		{
 			cpu.invalidCreds();
@@ -187,6 +246,27 @@ public class ShoppingController
 	
 	public void createAccount()
 	{
+		String uName = "";
+		String uPass = "";
+		try
+		{
+			System.out.println("Email:");
+			uName = scan.nextLine();
+			System.out.println("Password:");
+			uPass = scan.nextLine();
+			// Create account with Collections
+			custList.add(new Customer(uName, uPass));
+			System.out.println("cust lists:" + custList.toString());
+			login();
+			// Create account with Filestream
+			
+			// Create account with Dao
+			
+		} catch (Exception e)
+		{
+			System.out.println("Error Creating Account");
+		}
+		
 		
 	}
 	

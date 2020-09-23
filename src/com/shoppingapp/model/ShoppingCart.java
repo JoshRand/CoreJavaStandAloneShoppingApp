@@ -9,7 +9,7 @@ public class ShoppingCart
 	private List<Item> items = new ArrayList<Item>();
 	private int cartId = 0;
 	private int cartSize = 0;
-	
+	private int itemCountLength = 0;
 	public List<Item> getItems()
 	{
 		return items;
@@ -25,6 +25,14 @@ public class ShoppingCart
 	public void setCartId(int cartId)
 	{
 		this.cartId = cartId;
+	}
+	public int getItemCountLength()
+	{
+		for (Item item : items)
+		{
+			itemCountLength = (String.format("%d", item.getItemCount()).length() > itemCountLength) ? String.format("%d", item.getItemCount()).length() : itemCountLength;
+		}
+		return itemCountLength;
 	}
 	public void add(Item inventoryItem)
 	{
