@@ -1,8 +1,10 @@
 package com.shoppingapp.utility;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.shoppingapp.model.Customer;
+import com.shoppingapp.model.Invoice;
 import com.shoppingapp.model.Item;
 import com.shoppingapp.model.ShoppingCart;
 import com.shoppingapp.utility.ColorsUtility;
@@ -11,6 +13,7 @@ public class ConsolePrinterUtility
 {
 	Item item = null;
 	ColorsUtility cu = new ColorsUtility();
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a MM/dd/yyyy");
 	public void mainMenu()
 	{
 		System.out.println(cu.BLUE_BRIGHT + "+----------------------------+");
@@ -46,10 +49,10 @@ public class ConsolePrinterUtility
 		}
 		System.out.printf(cu.BLUE_BRIGHT + "+----------------------+  Cart %s",
 				(cart.size() == 0) ? "Empty\n" : String.format("$%.2f", cart.total())+"\n");
-		System.out.printf("|  WELCOME Customer!!! |  \\__/\\ %d %s",
+		System.out.printf("|  WELCOME Customer!!! |  \\__/` %d %s",
 				cart.size(),(cart.size() > 1 || cart.size() == 0) ? "items\n" : "item\n");
-		System.out.println("+----------------------+" + cu.RESET);
-		System.out.print("    Name"+ spaces(itemNameLength-4));
+		System.out.println("+----------------------+  O  O" + cu.RESET);
+		System.out.print("    Item Name"+ spaces(itemNameLength-9));
 		System.out.print("Code"+spaces(itemCodeLength-4));
 		System.out.print("Price");
 		System.out.println();
@@ -63,6 +66,7 @@ public class ConsolePrinterUtility
 		System.out.println();
 		System.out.println(""+signOutNumber+".  Sign Out");
 		System.out.println(""+(signOutNumber + 1)+".  Check Cart");
+		System.out.println(""+(signOutNumber + 2)+".  Manage Orders");
 		System.out.println();
 		enterChoice(signOutNumber - 1, false);
 	}
@@ -83,10 +87,10 @@ public class ConsolePrinterUtility
 		}
 		System.out.printf(cu.BLUE_BRIGHT + "+----------------------+  Cart %s",
 				(cart.size() == 0) ? "Empty\n" : String.format("$%.2f", cart.total())+"\n");
-		System.out.printf("|   Cart Information   |  \\__/\\ %d %s",
+		System.out.printf("|   Cart Information   |  \\__/` %d %s",
 				cart.size(),(cart.size() > 1 || cart.size() == 0) ? "items\n" : "item\n");
-		System.out.println("+----------------------+" + cu.RESET);
-		System.out.print(spaces(cart.getItemCountLength())+"  Name"+ spaces(itemNameLength-4));
+		System.out.println("+----------------------+  O  O" + cu.RESET);
+		System.out.print(spaces(cart.getItemCountLength())+"  Item Name"+ spaces(itemNameLength-9));
 		System.out.print("Code"+spaces(itemCodeLength-4));
 		System.out.print("Price");
 		System.out.println();
@@ -94,7 +98,7 @@ public class ConsolePrinterUtility
 		{
 			item = cart.getItems().get(i);
 			itemCountLength = String.format("%d",item.getItemCount()).length();
-			System.out.println(""+(item.getItemCount())+"x."+spaces(cart.getItemCountLength()-itemCountLength)+item.getItemName() +spaces(itemNameLength-item.getItemName().length())+ item.getItemCode() 
+			System.out.println(" "+(item.getItemCount())+"x"+spaces(cart.getItemCountLength()-itemCountLength)+item.getItemName() +spaces(itemNameLength-item.getItemName().length())+ item.getItemCode() 
 				+ spaces(itemCodeLength-item.getItemCode().length()) + "$" +String.format("%.2f",item.getItemPrice()*item.getItemCount()));
 			signOutNumber = i+2;
 		}
@@ -103,14 +107,61 @@ public class ConsolePrinterUtility
 		System.out.println(""+1+".  Check out");
 		System.out.println(""+2+".  Continue Shopping");
 		System.out.println();
-		enterChoice(signOutNumber - 1, false);
+		enterChoice(signOutNumber - 2, true);
 	}
+	
+	public void showInvoice(Invoice invoice)
+	{
+		int signOutNumber = 0;
+		int itemNameLength = 0;
+		int itemCodeLength = 0;
+		int itemCountLength = 0;
+		for (Item item : invoice.getItems())
+		{
+			if(item.getItemName().length() >= itemNameLength) 
+				itemNameLength = item.getItemName().length();
+			if(item.getItemCode().length() >= itemCodeLength)
+				itemCodeLength = item.getItemCode().length();
+		}
+		System.out.println(cu.BLUE_BRIGHT + "+----------------------+");
+		System.out.println("|  Invoice Information |");
+		System.out.println("+----------------------+" + cu.RESET);
+		System.out.printf("Customer Name : %s | Date : %s\n",invoice.getUserName(),invoice.getCreationDate().format(formatter));
+		System.out.printf("Invoice Number : %d\n", invoice.getInvNumber());
+		System.out.println("Items Purchased\n");
+		System.out.print(spaces(invoice.getItemCountLength())+"  Name"+ spaces(itemNameLength-4));
+		System.out.print("Code"+spaces(itemCodeLength-4));
+		System.out.print("Price");
+		System.out.println();
+		for (int i = 0; i < invoice.getItems().size(); ++i)
+		{
+			item = invoice.getItems().get(i);
+			itemCountLength = String.format("%d",item.getItemCount()).length();
+			System.out.println(" "+(item.getItemCount())+"x"+spaces(invoice.getItemCountLength()-itemCountLength)+item.getItemName() +spaces(itemNameLength-item.getItemName().length())+ item.getItemCode() 
+				+ spaces(itemCodeLength-item.getItemCode().length()) + "$" +String.format("%.2f",item.getItemPrice()*item.getItemCount()));
+			signOutNumber = i+2;
+		}
+		System.out.println();
+		System.out.println(spaces(itemNameLength+itemCodeLength+invoice.getItemCountLength())+"Total:"+"$" +String.format("%.2f",invoice.getTotal()));
+		System.out.println(""+1+". Continue Shopping");
+		System.out.println(""+2+". Exit");
+		System.out.println();
+		
+	}
+	
 	
 	public String spaces(int i)
 	{
 		String space = " ";
+		try
+		{
+			space = space.repeat(i + 2);
+		} 
+		catch (Exception e)
+		{
+			
+		}
 		
-		space = space.repeat(i + 2);
 		
 		return space;
 	}

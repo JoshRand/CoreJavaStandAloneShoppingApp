@@ -18,7 +18,7 @@ public class ShoppingController
 	
 	public List<Item> inventory = new ArrayList<Item>();
 	public List<Customer> custList = new ArrayList<Customer>();
-	public List<Invoice> invList = new ArrayList<Invoice>();
+	public List<Invoice> invoiceList = new ArrayList<Invoice>();
 	{
 		// Collections Inventory and Users before File streams and MySQL
 		inventory.add(new Item("Jerry", "Je1", 2000.20));
@@ -44,7 +44,6 @@ public class ShoppingController
 	{
 		LOGGED_IN,
 		LOGGED_OUT,
-		GUEST,
 		CREATE_ACCOUNT,
 		
 	}
@@ -102,18 +101,6 @@ public class ShoppingController
 						break;
 					}
 					
-				case GUEST:
-					cpu.shop(inventory, cart);
-					try
-					{
-						option = scan.nextInt();
-						scan.nextLine();
-						menuHandler(option);
-					} catch (Exception e)
-					{
-						cpu.invalidOption();
-					}
-					break;
 				default:
 					throw new IllegalArgumentException("Unexpected value: " + state);
 			}
@@ -130,10 +117,10 @@ public class ShoppingController
 					createAccount();
 					break;
 				case 2:
-					login();
+					login(false);
 					break;
 				case 3:
-					guest();
+					login(true);
 					break;
 				case 4:
 					exit();
@@ -170,6 +157,9 @@ public class ShoppingController
 					case 6:
 						showCart = !showCart;
 						break;
+					case 7:
+						manageOrders();
+						break;
 				}
 			}
 			else
@@ -178,7 +168,11 @@ public class ShoppingController
 				{
 					case 1:
 						// check out
-						
+						Invoice invoice = new Invoice(cust.getUserName(),cart.getItems(),cart.total());
+						invoiceList.add(invoice);
+						cart = new ShoppingCart();
+						cpu.showInvoice(invoice);
+						showCart = !showCart;
 						break;
 					case 2:
 						showCart = !showCart;
@@ -187,61 +181,41 @@ public class ShoppingController
 				}
 			}
 		}	
-		else if(state == State.GUEST)
-			switch (option)
-			{
-				case 1:
-					cart.add(inventory.get(option - 1));
-					break;
-				case 2:
-					cart.add(inventory.get(option - 1));
-					break;
-				case 3:
-					cart.add(inventory.get(option - 1));
-					break;
-				case 4:
-					cart.add(inventory.get(option - 1));
-					
-					for (Item item : inventory)
-					{
-						System.out.println(item.getItemCount());
-					}
-					break;
-				case 5:
-					cust = null;
-					cart = new ShoppingCart();
-					state = State.LOGGED_OUT;
-					break;
-				case 6:
-					showCart = !showCart;
-					break;
-			}
+		
 	}
 	
-	public void login()
+	public void login(boolean guest)
 	{
-		cpu.login();
-		String uName = "";
-		String uPass = "";
-		try
+		if(!guest)
 		{
-			System.out.println("Email:");
-			uName = scan.nextLine();
-			System.out.println("Password:");
-			uPass = scan.nextLine();
-			System.out.println();
-			// Login with Collections
-			cust = custService.login(uName, uPass, custList);
-			// Login with filestream/files
-			//
-			// Login with MySQL UserDao
-			//cust = custService.login(uName, uPass);
-		} catch (Exception e)
-		{
-			cpu.invalidCreds();
+			cpu.login();
+			String uName = "";
+			String uPass = "";
+			try
+			{
+				System.out.println("Email:");
+				uName = scan.nextLine();
+				System.out.println("Password:");
+				uPass = scan.nextLine();
+				System.out.println();
+				// Login with Collections
+				cust = custService.login(uName, uPass, custList);
+				// Login with filestream/files
+				//
+				// Login with MySQL UserDao
+				//cust = custService.login(uName, uPass);
+			} catch (Exception e)
+			{
+				cpu.invalidCreds();
+			}
+			state = (cust == null) ? State.LOGGED_OUT : State.LOGGED_IN;
+			
 		}
-		state = (cust == null) ? State.LOGGED_OUT : State.LOGGED_IN;
-		
+		else
+		{
+			cust = new Customer("Guest", "Guest");
+			state = (cust == null) ? State.LOGGED_OUT : State.LOGGED_IN;
+		}
 	}
 	
 	public void createAccount()
@@ -257,7 +231,7 @@ public class ShoppingController
 			// Create account with Collections
 			custList.add(new Customer(uName, uPass));
 			System.out.println("cust lists:" + custList.toString());
-			login();
+			login(false);
 			// Create account with Filestream
 			
 			// Create account with Dao
@@ -270,9 +244,9 @@ public class ShoppingController
 		
 	}
 	
-	public void guest()
+	public void manageOrders()
 	{
-		state = State.GUEST;
+		//cpu.orderHistory();
 	}
 	
 	public void exit()
