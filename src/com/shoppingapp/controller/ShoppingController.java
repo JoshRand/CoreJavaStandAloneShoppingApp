@@ -1,6 +1,8 @@
 package com.shoppingapp.controller;
 
 import java.io.Console;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -28,6 +30,7 @@ public class ShoppingController
 		inventory.add(new Item("Model D", "Mo1", 73.50));
 		custList.add(new Customer("1","1"));
 		custList.add(new Customer("2","2"));
+		invoiceList.add(new Invoice("1", new ArrayList<Item>(), 202.20));
 
 	}
 	
@@ -43,6 +46,7 @@ public class ShoppingController
 	public int option = 0;
 	public boolean showCart = false;
 	public boolean invoiceShow = false;
+	public boolean showOrders = false;
 	
 	public enum State
 	{
@@ -79,53 +83,29 @@ public class ShoppingController
 					
 					if(invoiceShow) {
 						cpu.showInvoice(invoice);
-						try
-						{
-							option = scan.nextInt();
-							scan.nextLine();
-							menuHandler(option);
-						} 
-						catch (Exception e)
-						{
-							cpu.invalidOption();
-							scan.nextLine();
-							
-						}
-						break;
 					}
 					else if(showCart)
 					{
 						cpu.cart(cart);
-						try
-						{
-							option = scan.nextInt();
-							scan.nextLine();
-							menuHandler(option);
-						} 
-						catch (Exception e)
-						{
-							cpu.invalidOption();
-							scan.nextLine();
-						}
-						break;
 					}
 					else
 					{
 						cpu.shop(inventory, cart);
-						try
-						{
-							option = scan.nextInt();
-							scan.nextLine();
-							menuHandler(option);
-						} 
-						catch (Exception e)
-						{
-							cpu.invalidOption();
-							scan.nextLine();
-						}
-						break;
+						
 					}
-					
+					try
+					{
+						option = scan.nextInt();
+						scan.nextLine();
+						menuHandler(option);
+					} 
+					catch (Exception e)
+					{
+						cpu.invalidOption();
+						scan.nextLine();
+						
+					}
+					break;
 				default:
 					throw new IllegalArgumentException("Unexpected value: " + state);
 			}
@@ -298,7 +278,113 @@ public class ShoppingController
 	
 	public void manageOrders()
 	{
-		//cpu.orderHistory();
+		LocalDateTime ldt = LocalDateTime.now();
+		
+		Invoice invoiceFind = null;
+		String itemChoice = "";
+		Item itemToChange = null;
+		scan = new Scanner(System.in);
+		List<Invoice> foundOrders = new ArrayList<Invoice>();
+		for (Invoice invoice : invoiceList)
+		{
+			if(cust.getUserName().equalsIgnoreCase(invoice.getUserName()))
+			{
+				foundOrders.add(invoice);
+			}
+			
+		}
+		cpu.orderHistory(foundOrders);
+		try
+		{
+			option = scan.nextInt();
+			scan.nextLine();
+			for (Invoice invoice : invoiceList)
+			{
+				if(invoice.getInvNumber() == option )
+				{
+					Duration durInv = Duration.between(ldt, invoice.getCreationDate());
+					Duration durDif = Duration.ofDays(15);
+					if(durInv.compareTo(durDif) > 0)
+					{
+						System.out.println("Return period is over");
+					}
+					else
+					{
+						invoiceFind = invoice;
+					}
+					
+				}
+			}
+			if(invoiceFind == null)
+			{
+				throw new InputMismatchException();
+			}
+			while(itemToChange == null) 
+			{
+				cpu.changeInvoice(invoiceFind);
+				itemChoice = scan.nextLine();
+				for (Item invItem : invoice.getItems())
+				{
+					if(invItem.getItemCode().equalsIgnoreCase(itemChoice))
+						itemToChange = invItem;
+					
+				}
+				if(itemToChange == null)
+				{
+					System.out.println("Invalid Item Code");
+				}
+			}
+			cpu.returnOption();
+			option = scan.nextInt();
+			scan.nextLine();
+			switch (option)
+			{
+				case 1:
+					if(itemToChange.getItemCount() == 0)
+					{
+						
+					}
+					else
+					{
+						itemToChange.setItemCount(itemToChange.getItemCount()-1);
+						int total = 0;
+						for (Item invItem : invoice.getItems())
+						{
+							if(itemToChange.getItemCount() == 0)
+							{
+								invItem = null;
+							}
+							else if(invItem.getItemCode().equalsIgnoreCase(itemChoice))
+							{
+								invItem = itemToChange;
+							}
+							
+						}
+						for (Item item : invoice.getItems())
+						{
+							total += item.getItemCount() * item.getItemPrice();
+						}
+						invoice.setTotal(total);
+						
+						invoiceShow = !invoiceShow;
+					}
+					
+					break;
+				default:
+					break;
+			
+			}
+			
+			
+		} 
+		catch (InputMismatchException e)
+		{
+			cpu.invalidOption();
+			scan.nextLine();
+			manageOrders();
+		}
+		
+		
 	}
 	
 	public void exit()

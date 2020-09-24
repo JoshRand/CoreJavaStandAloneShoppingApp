@@ -112,7 +112,6 @@ public class ConsolePrinterUtility
 	
 	public void showInvoice(Invoice invoice)
 	{
-		int signOutNumber = 0;
 		int itemNameLength = 0;
 		int itemCodeLength = 0;
 		int itemCountLength = 0;
@@ -139,7 +138,6 @@ public class ConsolePrinterUtility
 			itemCountLength = String.format("%d",item.getItemCount()).length();
 			System.out.println(" "+(item.getItemCount())+"x"+spaces(invoice.getItemCountLength()-itemCountLength)+item.getItemName() +spaces(itemNameLength-item.getItemName().length())+ item.getItemCode() 
 				+ spaces(itemCodeLength-item.getItemCode().length()) + "$" +String.format("%.2f",item.getItemPrice()*item.getItemCount()));
-			signOutNumber = i+2;
 		}
 		System.out.println();
 		System.out.println(spaces(itemNameLength+itemCodeLength+invoice.getItemCountLength())+"Total:"+"$" +String.format("%.2f",invoice.getTotal()));
@@ -148,7 +146,68 @@ public class ConsolePrinterUtility
 		System.out.println();
 		enterChoice(2, true);
 	}
+	public void changeInvoice(Invoice invoice)
+	{
+		int itemNameLength = 0;
+		int itemCodeLength = 0;
+		int itemCountLength = 0;
+		for (Item item : invoice.getItems())
+		{
+			if(item.getItemName().length() >= itemNameLength) 
+				itemNameLength = item.getItemName().length();
+			if(item.getItemCode().length() >= itemCodeLength)
+				itemCodeLength = item.getItemCode().length();
+		}
+		System.out.println(cu.BLUE_BRIGHT + "+----------------------+");
+		System.out.println("|    Change Invoice    |");
+		System.out.println("+----------------------+" + cu.RESET);
+		System.out.printf("Customer Name : %s | Date : %s\n",invoice.getUserName(),invoice.getCreationDate().format(formatter));
+		System.out.printf("Invoice Number : %d\n", invoice.getInvNumber());
+		System.out.println("Items Purchased\n");
+		System.out.print(spaces(invoice.getItemCountLength())+"  Name"+ spaces(itemNameLength-4));
+		System.out.print("Code"+spaces(itemCodeLength-4));
+		System.out.print("Price");
+		System.out.println();
+		for (int i = 0; i < invoice.getItems().size(); ++i)
+		{
+			item = invoice.getItems().get(i);
+			itemCountLength = String.format("%d",item.getItemCount()).length();
+			System.out.println(" "+(item.getItemCount())+"x"+spaces(invoice.getItemCountLength()-itemCountLength)+item.getItemName() +spaces(itemNameLength-item.getItemName().length())+ item.getItemCode() 
+				+ spaces(itemCodeLength-item.getItemCode().length()) + "$" +String.format("%.2f",item.getItemPrice()*item.getItemCount()));
+		}
+		System.out.println();
+		System.out.println(spaces(itemNameLength+itemCodeLength+invoice.getItemCountLength())+"Total:"+"$" +String.format("%.2f",invoice.getTotal()));
+		System.out.println("Enter the Item Code to return");
+		System.out.println();
+	}
 	
+	public void returnOption()
+	{
+		System.out.println(cu.BLUE_BRIGHT + "+----------------------+");
+		System.out.println("|     Return Item      |");
+		System.out.println("+----------------------+" + cu.RESET);
+		System.out.println(" 1. Return Item");
+		System.out.println(" 2. Continue Shopping");
+		System.out.println(" 3. Sign Out");
+	}
+	
+	public void orderHistory(List<Invoice> orderList)
+	{
+		int signOutNumber = 0;
+		System.out.println(cu.BLUE_BRIGHT + "+----------------------+");
+		System.out.println("|     Order History    |");
+		System.out.println("+----------------------+" + cu.RESET);
+		System.out.println("Invoice List:");
+		int i = 1;
+		for (Invoice invoice : orderList)
+		{
+			
+			System.out.println(" "+ (i)+". Invoice No. [ "+ invoice.getInvNumber()+" ] Total: $" +String.format("%.2f",invoice.getTotal()) + "  Date: " + invoice.getCreationDate().format(formatter));
+			i++;
+			signOutNumber = i+2;
+		}
+		System.out.println("Enter the Invoice that you'd like to change");
+	}
 	
 	public String spaces(int i)
 	{
