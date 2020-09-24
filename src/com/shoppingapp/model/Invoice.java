@@ -6,6 +6,12 @@ import java.util.List;
 
 public class Invoice
 {
+
+	interface ItemInterface
+	{
+		public List<Item> copyItems(List<Item> items);
+	}
+
 	private static int invCount = 0;
 	private int invNumber = 0;
 	private double total;
@@ -21,7 +27,18 @@ public class Invoice
 		super();
 		this.invNumber = ++invCount;
 		this.userName = userName;
-		this.items = items;
+		
+		ItemInterface f = ((itemList) -> {
+			List<Item> list = itemList;
+			List<Item> listCopied = new ArrayList<Item>();
+			list.forEach((temp)->{
+				listCopied.add(new Item(temp.getItemName(), temp.getItemCode(), temp.getItemPrice(), temp.getItemCount()));
+			});
+			
+			return listCopied;
+		});
+		
+		this.items = f.copyItems(items);
 		this.total = total;
 		
 	}

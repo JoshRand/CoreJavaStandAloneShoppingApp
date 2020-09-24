@@ -2,6 +2,7 @@ package com.shoppingapp.controller;
 
 import java.io.Console;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -34,18 +35,19 @@ public class ShoppingController
 	public ConsolePrinterUtility cpu = new ConsolePrinterUtility();
 	public Customer cust = null;
 	public ShoppingCart cart = new ShoppingCart();
+	public Invoice invoice = null;
 	public Scanner scan = null;
 	
 	public CustomerService custService = new CustomerServiceImpl();
 	
 	public int option = 0;
 	public boolean showCart = false;
+	public boolean invoiceShow = false;
+	
 	public enum State
 	{
 		LOGGED_IN,
-		LOGGED_OUT,
-		CREATE_ACCOUNT,
-		
+		LOGGED_OUT
 	}
 	public State state = State.LOGGED_OUT;//State state = State.LOGGED_IN;
 	
@@ -65,14 +67,33 @@ public class ShoppingController
 						option = scan.nextInt();
 						scan.nextLine();
 						menuHandler(option);
-					} catch (Exception e)
+					} 
+					catch (InputMismatchException e)
 					{
 						cpu.invalidOption();
+						scan.nextLine();
 					}
 					
 					break;
 				case LOGGED_IN:
-					if(showCart)
+					
+					if(invoiceShow) {
+						cpu.showInvoice(invoice);
+						try
+						{
+							option = scan.nextInt();
+							scan.nextLine();
+							menuHandler(option);
+						} 
+						catch (Exception e)
+						{
+							cpu.invalidOption();
+							scan.nextLine();
+							
+						}
+						break;
+					}
+					else if(showCart)
 					{
 						cpu.cart(cart);
 						try
@@ -80,9 +101,11 @@ public class ShoppingController
 							option = scan.nextInt();
 							scan.nextLine();
 							menuHandler(option);
-						} catch (Exception e)
+						} 
+						catch (Exception e)
 						{
 							cpu.invalidOption();
+							scan.nextLine();
 						}
 						break;
 					}
@@ -94,9 +117,11 @@ public class ShoppingController
 							option = scan.nextInt();
 							scan.nextLine();
 							menuHandler(option);
-						} catch (Exception e)
+						} 
+						catch (Exception e)
 						{
 							cpu.invalidOption();
+							scan.nextLine();
 						}
 						break;
 					}
@@ -104,6 +129,7 @@ public class ShoppingController
 				default:
 					throw new IllegalArgumentException("Unexpected value: " + state);
 			}
+			
 		}
 		
 	}
@@ -128,7 +154,32 @@ public class ShoppingController
 			}
 		else if(state == State.LOGGED_IN) 
 		{
-			if(!showCart)
+			if(invoiceShow)
+			{
+				switch (option)
+				{
+					case 1:
+						invoiceShow = !invoiceShow;
+						for (Item item : inventory)
+						{
+							item.setItemCount(0);
+						}
+						break;
+					case 2:
+						cust = null;
+						invoice = null;
+						cart = new ShoppingCart();
+						for (Item item : inventory)
+						{
+							item.setItemCount(0);
+						}
+						state = State.LOGGED_OUT;
+						invoiceShow = !invoiceShow;
+						break;
+					
+				}
+			}
+			else if(!showCart)
 			{
 				switch (option)
 				{
@@ -162,17 +213,18 @@ public class ShoppingController
 						break;
 				}
 			}
+			
 			else
 			{
 				switch (option)
 				{
 					case 1:
 						// check out
-						Invoice invoice = new Invoice(cust.getUserName(),cart.getItems(),cart.total());
+						invoice = new Invoice(cust.getUserName(),cart.getItems(),cart.total());
 						invoiceList.add(invoice);
 						cart = new ShoppingCart();
-						cpu.showInvoice(invoice);
 						showCart = !showCart;
+						invoiceShow = !invoiceShow;
 						break;
 					case 2:
 						showCart = !showCart;
@@ -251,6 +303,7 @@ public class ShoppingController
 	
 	public void exit()
 	{
+		scan.close();
 		System.exit(0);
 	}
 		

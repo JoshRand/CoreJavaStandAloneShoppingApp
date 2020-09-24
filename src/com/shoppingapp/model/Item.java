@@ -46,6 +46,14 @@ public class Item
 		this.itemCode = itemCode;
 		this.itemPrice = itemPrice;
 	}
+	public Item(String itemName, String itemCode, double itemPrice, int itemCount)
+	{
+		super();
+		this.itemName = itemName;
+		this.itemCode = itemCode;
+		this.itemPrice = itemPrice;
+		this.itemCount = itemCount;
+	}
 	@Override
 	public String toString()
 	{

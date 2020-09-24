@@ -144,9 +144,9 @@ public class ConsolePrinterUtility
 		System.out.println();
 		System.out.println(spaces(itemNameLength+itemCodeLength+invoice.getItemCountLength())+"Total:"+"$" +String.format("%.2f",invoice.getTotal()));
 		System.out.println(""+1+". Continue Shopping");
-		System.out.println(""+2+". Exit");
+		System.out.println(""+2+". Sign Out");
 		System.out.println();
-		
+		enterChoice(2, true);
 	}
 	
 	
