@@ -49,12 +49,20 @@ public class ShoppingController
 	public boolean invoiceShow = false;
 	public boolean showOrders = false;
 	
+	public enum DataMode
+	{
+		COLLECTIONS,
+		FILE_STREAMS,
+		RELATIONAL_DATABASE
+	}
+	public DataMode dataMode = DataMode.COLLECTIONS;
+	
 	public enum State
 	{
 		LOGGED_IN,
 		LOGGED_OUT
 	}
-	public State state = State.LOGGED_OUT;//State state = State.LOGGED_IN;
+	public State state = State.LOGGED_OUT;
 	
 	
 	public void doShopping()
@@ -182,9 +190,8 @@ public class ShoppingController
 						}
 						break;
 					case 5:
-						cust = null;
-						cart = new ShoppingCart();
-						state = State.LOGGED_OUT;
+						logout();
+						
 						break;
 					case 6:
 						showCart = !showCart;
@@ -231,12 +238,23 @@ public class ShoppingController
 				System.out.println("Password:");
 				uPass = scan.nextLine();
 				System.out.println();
-				// Login with Collections
-				cust = custService.login(uName, uPass, custList);
-				// Login with filestream/files
-				//
-				// Login with MySQL UserDao
-				//cust = custService.login(uName, uPass);
+				switch(dataMode)
+				{
+					case COLLECTIONS:
+						// Login with Collections
+						cust = custService.login(uName, uPass, custList);
+						break;
+					case FILE_STREAMS:
+						// Login with filestream/files
+						
+						break;
+					case RELATIONAL_DATABASE:
+						// Login with MySQL UserDao
+						cust = custService.login(uName, uPass);
+						break;
+					default:
+						break;
+				}
 			} catch (Exception e)
 			{
 				cpu.invalidCreds();
@@ -265,39 +283,58 @@ public class ShoppingController
 				uName = scan.nextLine();
 				if(uName.equalsIgnoreCase("Q"))
 					break;
-				System.out.println("Password:");
-				uPass = scan.nextLine();
-				if(uPass.equalsIgnoreCase("Q"))
-					break;
-				if(passCheck(uPass))
+				if(uName.matches("^\\S+@\\S+$"))
 				{
-					System.out.println("Confirm Password:");
-					uPassCon = scan.nextLine();
-					if(uPassCon.equalsIgnoreCase("Q"))
+					
+					System.out.println("Password:");
+					uPass = scan.nextLine();
+					if(uPass.equalsIgnoreCase("Q"))
 						break;
-					if(uPass.equals(uPassCon))
+					if(passCheck(uPass))
 					{
-						// Create account with Collections
-						custList.add(new Customer(uName, uPass));
-						System.out.println("cust lists:" + custList.toString());
-						login(false);
-						break;
-						// Create account with Filestream
-						
-						// Create account with Dao
+						System.out.println("Confirm Password:");
+						uPassCon = scan.nextLine();
+						if(uPassCon.equalsIgnoreCase("Q"))
+							break;
+						if(uPass.equals(uPassCon))
+						{
+							switch(dataMode)
+							{
+								case COLLECTIONS:
+									// Create account with Collections
+									custList.add(new Customer(uName, uPass));
+									System.out.println("cust lists:" + custList.toString());
+									login(false);
+									break;
+								case FILE_STREAMS:
+									// Create account with Filestream
+									
+									break;
+								case RELATIONAL_DATABASE:
+									// Create account with Dao
+									custService.createCustomer(new Customer(uName, uPass));
+									break;
+								default:
+									break;
+							}
+						}
+					}
+					else
+					{
+						System.out.println("password must be 8 characters long \nand at least 1 upper/ 1 lower/ 1 special/ 1 number.");
 					}
 				}
 				else
 				{
-					System.out.println("password must be 8 characters long \nand at least 1 upper/ 1 lower/ 1 special/ 1 number.");
+					System.out.println("Make sure Email is in ____@____.___ format");
 				}
+				
 			}
 			
 		} catch (Exception e)
 		{
 			System.out.println("Error Creating Account");
 		}
-		
 		
 	}
 	
@@ -386,7 +423,6 @@ public class ShoppingController
 				{
 					cpu.returnOption();
 					opt = scan.nextLine();
-					scan.nextLine();
 					option = Integer.parseInt(opt);
 					if(opt.equalsIgnoreCase("Q"))
 					{
@@ -404,7 +440,7 @@ public class ShoppingController
 								else
 								{
 									itemToChange.setItemCount(itemToChange.getItemCount()-1);
-									int total = 0;
+									double total = 0;
 									for (Item invItem : invoice.getItems())
 									{
 										if(itemToChange.getItemCount() == 0)
@@ -426,6 +462,13 @@ public class ShoppingController
 									invoiceShow = !invoiceShow;
 								}
 								
+								break;
+							case 2:
+								invoiceShow = false;
+								
+								break;
+							case 3:
+								logout();
 								break;
 							default:
 								break;
@@ -470,6 +513,12 @@ public class ShoppingController
 			return true;
 		else
 			return false;
+	}
+	public void logout()
+	{
+		cust = null;
+		cart = new ShoppingCart();
+		state = State.LOGGED_OUT;
 	}
 	public void exit()
 	{
