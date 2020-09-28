@@ -1,11 +1,14 @@
 package com.shoppingapp.controller;
 
 import java.io.Console;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
+import com.mysql.cj.ParseInfo;
 import com.shoppingapp.model.Customer;
 import com.shoppingapp.model.Invoice;
 import com.shoppingapp.model.Item;
@@ -28,6 +31,7 @@ public class ShoppingController
 		inventory.add(new Item("Model D", "Mo1", 73.50));
 		custList.add(new Customer("1","1"));
 		custList.add(new Customer("2","2"));
+		invoiceList.add(new Invoice("1", new ArrayList<Item>(), 202.20));
 
 	}
 	
@@ -43,6 +47,7 @@ public class ShoppingController
 	public int option = 0;
 	public boolean showCart = false;
 	public boolean invoiceShow = false;
+	public boolean showOrders = false;
 	
 	public enum State
 	{
@@ -79,53 +84,29 @@ public class ShoppingController
 					
 					if(invoiceShow) {
 						cpu.showInvoice(invoice);
-						try
-						{
-							option = scan.nextInt();
-							scan.nextLine();
-							menuHandler(option);
-						} 
-						catch (Exception e)
-						{
-							cpu.invalidOption();
-							scan.nextLine();
-							
-						}
-						break;
 					}
 					else if(showCart)
 					{
 						cpu.cart(cart);
-						try
-						{
-							option = scan.nextInt();
-							scan.nextLine();
-							menuHandler(option);
-						} 
-						catch (Exception e)
-						{
-							cpu.invalidOption();
-							scan.nextLine();
-						}
-						break;
 					}
 					else
 					{
 						cpu.shop(inventory, cart);
-						try
-						{
-							option = scan.nextInt();
-							scan.nextLine();
-							menuHandler(option);
-						} 
-						catch (Exception e)
-						{
-							cpu.invalidOption();
-							scan.nextLine();
-						}
-						break;
+						
 					}
-					
+					try
+					{
+						option = scan.nextInt();
+						scan.nextLine();
+						menuHandler(option);
+					} 
+					catch (Exception e)
+					{
+						cpu.invalidOption();
+						scan.nextLine();
+						
+					}
+					break;
 				default:
 					throw new IllegalArgumentException("Unexpected value: " + state);
 			}
@@ -274,19 +255,43 @@ public class ShoppingController
 	{
 		String uName = "";
 		String uPass = "";
+		String uPassCon = "";
+		System.out.println("You can quit Account Creation by entering: Q");
 		try
 		{
-			System.out.println("Email:");
-			uName = scan.nextLine();
-			System.out.println("Password:");
-			uPass = scan.nextLine();
-			// Create account with Collections
-			custList.add(new Customer(uName, uPass));
-			System.out.println("cust lists:" + custList.toString());
-			login(false);
-			// Create account with Filestream
-			
-			// Create account with Dao
+			while(true)
+			{
+				System.out.println("Email:");
+				uName = scan.nextLine();
+				if(uName.equalsIgnoreCase("Q"))
+					break;
+				System.out.println("Password:");
+				uPass = scan.nextLine();
+				if(uPass.equalsIgnoreCase("Q"))
+					break;
+				if(passCheck(uPass))
+				{
+					System.out.println("Confirm Password:");
+					uPassCon = scan.nextLine();
+					if(uPassCon.equalsIgnoreCase("Q"))
+						break;
+					if(uPass.equals(uPassCon))
+					{
+						// Create account with Collections
+						custList.add(new Customer(uName, uPass));
+						System.out.println("cust lists:" + custList.toString());
+						login(false);
+						break;
+						// Create account with Filestream
+						
+						// Create account with Dao
+					}
+				}
+				else
+				{
+					System.out.println("password must be 8 characters long \nand at least 1 upper/ 1 lower/ 1 special/ 1 number.");
+				}
+			}
 			
 		} catch (Exception e)
 		{
@@ -298,9 +303,174 @@ public class ShoppingController
 	
 	public void manageOrders()
 	{
-		//cpu.orderHistory();
+		LocalDateTime ldt = LocalDateTime.now();
+		
+		Invoice invoiceFind = null;
+		String itemChoice = "";
+		Item itemToChange = null;
+		scan = new Scanner(System.in);
+		List<Invoice> foundOrders = new ArrayList<Invoice>();
+		for (Invoice invoice : invoiceList)
+		{
+			if(cust.getUserName().equalsIgnoreCase(invoice.getUserName()))
+			{
+				foundOrders.add(invoice);
+			}
+			
+		}
+		cpu.orderHistory(foundOrders);
+		try
+		{
+			
+			String opt = "";
+			opt = scan.nextLine();
+			try
+			{
+				option = Integer.parseInt(opt);
+			} catch (Exception e)
+			{
+				// TODO: handle exception
+			}
+			
+			
+			System.out.println(opt);
+			if(opt.equalsIgnoreCase("Q"))
+			{
+				invoiceShow = false;
+			}
+			else
+			{
+				for (Invoice invoice : invoiceList)
+				{
+					if( invoice.getInvNumber() == option && invoice.getUserName().equals(cust.getUserName()))
+					{
+						// Check to see if invoice isn't able to be changed (return period over)
+						Duration durInv = Duration.between(ldt, invoice.getCreationDate());
+						Duration durDif = Duration.ofDays(15);
+						if(durInv.compareTo(durDif) > 0)
+						{
+							System.out.println("Return period is over");
+						}
+						else
+						{
+							invoiceFind = invoice;
+						}
+						
+					}
+				}
+				if(invoiceFind == null)
+				{
+					throw new InputMismatchException();
+				}
+				while(itemToChange == null) 
+				{
+					cpu.changeInvoice(invoiceFind);
+					itemChoice = scan.nextLine();
+					if(itemChoice.equalsIgnoreCase("Q"))
+					{
+						invoiceShow = false;
+						break;
+					}
+					for (Item invItem : invoice.getItems())
+					{
+						if(invItem.getItemCode().equalsIgnoreCase(itemChoice))
+							itemToChange = invItem;
+						
+					}
+					if(itemToChange == null)
+					{
+						System.out.println("Invalid Item Code");
+					}
+				}
+				if(!itemChoice.equalsIgnoreCase("Q"))
+				{
+					cpu.returnOption();
+					opt = scan.nextLine();
+					scan.nextLine();
+					option = Integer.parseInt(opt);
+					if(opt.equalsIgnoreCase("Q"))
+					{
+						invoiceShow = false;
+					}
+					else
+					{
+						switch (option)
+						{
+							case 1:
+								if(itemToChange.getItemCount() == 0)
+								{
+									
+								}
+								else
+								{
+									itemToChange.setItemCount(itemToChange.getItemCount()-1);
+									int total = 0;
+									for (Item invItem : invoice.getItems())
+									{
+										if(itemToChange.getItemCount() == 0)
+										{
+											invItem = null;
+										}
+										else if(invItem.getItemCode().equalsIgnoreCase(itemChoice))
+										{
+											invItem = itemToChange;
+										}
+										
+									}
+									for (Item item : invoice.getItems())
+									{
+										total += item.getItemCount() * item.getItemPrice();
+									}
+									invoice.setTotal(total);
+									
+									invoiceShow = !invoiceShow;
+								}
+								
+								break;
+							default:
+								break;
+						
+						}
+					}
+				}
+				
+				
+			}
+		} 
+		catch (InputMismatchException e)
+		{
+		
+			cpu.invalidOption();
+			scan.nextLine();
+			manageOrders();
+		}
+		
+		
 	}
 	
+	private boolean passCheck(String password)
+	{
+		int grade = 0;
+		//length >= 8
+		if(password.length() >= 8)
+			grade++;
+		// contains at least 1 digit
+		if(password.matches("(?=.*[0-9]).*"))
+			grade++;
+		// contains at least 1 lower case
+		if(password.matches("(?=.*[a-z]).*"))
+			grade++;
+		// contains at least 1 upper case
+		if(password.matches("(?=.*[A-Z]).*"))
+			grade++;
+		// contains at least 1 special char
+		if(password.matches("(?=.*[~!@#$%^&*()_-]).*"))
+			grade++;
+		if(grade == 5)
+			return true;
+		else
+			return false;
+	}
 	public void exit()
 	{
 		scan.close();
