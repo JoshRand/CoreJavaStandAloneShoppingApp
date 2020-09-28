@@ -177,6 +177,7 @@ public class ConsolePrinterUtility
 		}
 		System.out.println();
 		System.out.println(spaces(itemNameLength+itemCodeLength+invoice.getItemCountLength())+"Total:"+"$" +String.format("%.2f",invoice.getTotal()));
+		System.out.println("Enter Q to Quit item returns");
 		System.out.println("Enter the Item Code to return");
 		System.out.println();
 	}
@@ -206,6 +207,7 @@ public class ConsolePrinterUtility
 			i++;
 			signOutNumber = i+2;
 		}
+		System.out.println("Enter Q to Quit item returns");
 		System.out.println("Enter the Invoice that you'd like to change");
 	}
 	
