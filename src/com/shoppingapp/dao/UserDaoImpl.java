@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import com.shoppingapp.model.Customer;
 
 public class UserDaoImpl implements UserDao
@@ -16,9 +17,9 @@ public class UserDaoImpl implements UserDao
 		try 
 		{
 			Class.forName("com.mysql.cj.jdbc.Driver");
+			//?"+"autoReconnect=true&useSSL=false
+			conn = DriverManager.getConnection("jdbc:mysql://localhost/shopappdb","root","root" );
 			
-			conn = DriverManager.getConnection("jdbc:mysql://localhost/shopappdb?"
-					+ "autoReconnect=true&useSSL=false","root","root" );
 			return conn;
 		}
 		catch(Exception e) 
@@ -32,28 +33,23 @@ public class UserDaoImpl implements UserDao
 
 	
 	@Override
-	public Customer create(Customer cust)
+	public void create(Customer cust)
 	{
-		if(findByUserName(cust.getUserName()) == null)
+		try
 		{
-			try
+			Customer custSearch = findByUserName(cust.getUserName());
+			if(custSearch == null)
 			{
 				Connection con = getConnection();
-				PreparedStatement ps = con.prepareStatement(
-						"insert into customers(userName,userPass)values(?,?)");
-				ps.setString(2, cust.getUserName());
-				ps.setString(3, cust.getUserPass());
-				ps.executeUpdate();
-				con.close();
-			} catch (Exception e)
-			{
-				System.out.println("Create Exception");
+				Statement statemnt = con.createStatement();
+				statemnt.execute("insert into customers(userName,userPass)values('"+cust.getUserName()+"','"+cust.getUserPass()+"')");
+				
 			}
-			return cust;
-		}
-		else
+		
+		} 
+		catch (Exception e)
 		{
-			return null;
+			System.out.println("Create Exception");
 		}
 	}
 
@@ -78,19 +74,19 @@ public class UserDaoImpl implements UserDao
 		try
 		{
 			Connection con = getConnection();
+		
 			PreparedStatement ps = con.prepareStatement(
 					"select * from customers where userName = ?");
 			ps.setString(1, userName);
 			ResultSet rs = ps.executeQuery();
+			
 			if(rs.next()) 
 			{
 				cust = new Customer(rs.getString(2),rs.getString(3));
-				con.close();
 				return cust;
 			}
 			else
-			{
-				con.close();
+			{	
 				return null;
 			}
 			

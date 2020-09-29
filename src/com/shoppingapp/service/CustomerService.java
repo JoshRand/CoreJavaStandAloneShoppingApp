@@ -8,5 +8,5 @@ public interface CustomerService
 {
 	public Customer login(String userName, String userPass);
 	public Customer login(String userName, String userPass, List<Customer> custList);
-	public Customer createCustomer(Customer cust);
+	public void createCustomer(Customer cust);
 }
