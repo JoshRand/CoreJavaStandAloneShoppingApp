@@ -14,11 +14,11 @@ public class ConsolePrinterUtility
 	Item item = null;
 	ColorsUtility cu = new ColorsUtility();
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a MM/dd/yyyy");
-	public void mainMenu()
+	public void mainMenu(String curDataMode)
 	{
-		System.out.println(cu.BLUE_BRIGHT + "+----------------------------+");
-		System.out.println("|  ShoppingApp Welcomes You! |");
-		System.out.println("+----------------------------+" + cu.RESET);
+		System.out.println(cu.BLUE_BRIGHT + "+----------------------------+        Switch dataMode|  Current: "+curDataMode+"");
+		System.out.println("|  ShoppingApp Welcomes You! |        Enter: C - Collections | F - FileStreams");
+		System.out.println("+----------------------------+               R - Relational Database" + cu.RESET);
 		System.out.println("1. Create New Account");
 		System.out.println("2. Login");
 		System.out.println("3. Guest");

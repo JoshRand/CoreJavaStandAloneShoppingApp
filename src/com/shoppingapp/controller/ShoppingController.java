@@ -1,6 +1,9 @@
 package com.shoppingapp.controller;
 
+import java.io.BufferedReader;
 import java.io.Console;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import com.shoppingapp.service.InventoryServiceImpl;
 import com.shoppingapp.service.InvoiceService;
 import com.shoppingapp.service.InvoiceServiceImpl;
 import com.shoppingapp.utility.ConsolePrinterUtility;
+import com.shoppingapp.utility.FileStorageUtility;
 
 public class ShoppingController
 {
@@ -29,13 +33,14 @@ public class ShoppingController
 		FILE_STREAMS,
 		RELATIONAL_DATABASE
 	}
-	public DataMode dataMode = DataMode.RELATIONAL_DATABASE;
+	public DataMode dataMode = DataMode.FILE_STREAMS;
 	
 	public enum State
 	{
 		LOGGED_IN,
 		LOGGED_OUT
 	}
+	
 	public State state = State.LOGGED_OUT;
 
 	public int option = 0;
@@ -43,11 +48,13 @@ public class ShoppingController
 	public boolean invoiceShow = false;
 	public boolean showOrders = false;
 	
+	
 	public ConsolePrinterUtility cpu = new ConsolePrinterUtility();
 	public Customer cust = null;
 	public ShoppingCart cart = new ShoppingCart();
 	public Invoice invoice = null;
 	public Scanner scan = null;
+	public String opt = "";
 	
 	public CustomerService custService = new CustomerServiceImpl();
 	public InventoryService inventoryService = new InventoryServiceImpl();
@@ -71,7 +78,7 @@ public class ShoppingController
 		}
 		if(dataMode == DataMode.FILE_STREAMS)
 		{
-			
+			inventory = inventoryService.getInventoryFromFile();
 		}
 		if(dataMode == DataMode.RELATIONAL_DATABASE)
 		{
@@ -89,19 +96,7 @@ public class ShoppingController
 			switch (state)
 			{
 				case LOGGED_OUT:
-					cpu.mainMenu();
-					try
-					{
-						option = scan.nextInt();
-						scan.nextLine();
-						menuHandler(option);
-					} 
-					catch (InputMismatchException e)
-					{
-						cpu.invalidOption();
-						scan.nextLine();
-					}
-					
+					cpu.mainMenu(dataMode.toString());
 					break;
 				case LOGGED_IN:
 					
@@ -115,23 +110,61 @@ public class ShoppingController
 					else
 					{
 						cpu.shop(inventory, cart);
-						
-					}
-					try
-					{
-						option = scan.nextInt();
-						scan.nextLine();
-						menuHandler(option);
-					} 
-					catch (Exception e)
-					{
-						cpu.invalidOption();
-						scan.nextLine();
-						
 					}
 					break;
 				default:
 					throw new IllegalArgumentException("Unexpected value: " + state);
+			}
+			try
+			{
+				
+				opt = scan.nextLine();
+				try
+				{
+					option = Integer.parseInt(opt);
+				} catch (Exception e)
+				{
+					// TODO: handle exception
+				}
+				
+				if(opt.equalsIgnoreCase("C"))
+				{
+					
+					dataMode = DataMode.COLLECTIONS;
+					inventory.clear();
+					custList.clear();
+					invoiceList.clear();
+					inventory.add(new Item("Jerry", "Je1", 2000.20));
+					inventory.add(new Item("G-Pro Wireless", "Gpw1", 150.30));
+					inventory.add(new Item("Haiti", "Ha1", 69.50));
+					inventory.add(new Item("Model D", "Mo1", 73.50));
+					custList.add(new Customer("1","1"));
+					custList.add(new Customer("2","2"));
+					invoiceList.add(new Invoice("1", new ArrayList<Item>(), 202.20));
+					continue;
+				}
+				else if(opt.equalsIgnoreCase("F"))
+				{
+					inventory = inventoryService.getInventoryFromFile();
+					dataMode = DataMode.FILE_STREAMS;
+					continue;
+				}
+				else if(opt.equalsIgnoreCase("R"))
+				{
+					inventory.clear();
+					custList.clear();
+					invoiceList.clear();
+					inventory = inventoryService.getInventory();
+					invoiceList = invoiceService.getInvoices();
+					dataMode = DataMode.RELATIONAL_DATABASE;
+					continue;
+				}
+				menuHandler(option);
+			} 
+			catch (InputMismatchException e)
+			{
+				cpu.invalidOption();
+				scan.nextLine();
 			}
 			
 		}
@@ -274,7 +307,7 @@ public class ShoppingController
 						break;
 					case FILE_STREAMS:
 						// Login with filestream/files
-						
+						cust = custService.loginFileStreams(uName,uPass);
 						break;
 					case RELATIONAL_DATABASE:
 						// Login with MySQL UserDao
@@ -331,12 +364,13 @@ public class ShoppingController
 								case COLLECTIONS:
 									// Create account with Collections
 									custList.add(new Customer(uName, uPass));
-									System.out.println("cust lists:" + custList.toString());
+									//System.out.println("cust lists:" + custList.toString());
 									login(false);
 									break;
 								case FILE_STREAMS:
 									// Create account with Filestream
-									
+									custService.createStreamCust(new Customer(uName, uPass));
+									//System.out.println(fsu.custToString(new Customer(uName, uPass)));
 									break;
 								case RELATIONAL_DATABASE:
 									// Create account with Dao
