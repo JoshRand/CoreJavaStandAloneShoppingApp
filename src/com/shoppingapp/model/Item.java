@@ -46,6 +46,12 @@ public class Item
 		this.itemCode = itemCode;
 		this.itemPrice = itemPrice;
 	}
+	
+	public Item()
+	{
+		super();
+		// TODO Auto-generated constructor stub
+	}
 	public Item(String itemName, String itemCode, double itemPrice, int itemCount)
 	{
 		super();
@@ -57,7 +63,9 @@ public class Item
 	@Override
 	public String toString()
 	{
-		return "Item [itemName=" + itemName + ", itemCode=" + itemCode + ", itemPrice=" + itemPrice + "]";
+		return "Item [itemName=" + itemName + ", itemCode=" + itemCode + ", itemPrice=" + itemPrice + ", itemCount="
+				+ itemCount + "]";
 	}
+	
 	
 }

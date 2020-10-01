@@ -1,0 +1,24 @@
+{
+itemName:Jerry,
+itemCode:Je1,
+itemPrice:2000.00,
+itemCount:20,
+},
+{
+itemName:G-Pro Wireless,
+itemCode:Gpw1,
+itemPrice:159.00,
+itemCount:20,
+},
+{
+itemName:Haiti,
+itemCode:Ha1,
+itemPrice:60.20,
+itemCount:20,
+},
+{
+itemName:Model D,
+itemCode:Mo1,
+itemPrice:76.20,
+itemCount:20,
+},

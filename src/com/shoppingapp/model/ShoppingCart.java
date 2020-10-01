@@ -36,9 +36,21 @@ public class ShoppingCart
 	}
 	public void add(Item inventoryItem)
 	{
-		if(!items.contains(inventoryItem))
+		boolean addCondition = true;
+		for (Item item : items)
 		{
-			items.add(inventoryItem);
+			if(item.getItemCode().equals(inventoryItem.getItemCode()))
+			{
+				addCondition = false;
+				break;
+			}
+		
+		}
+		if(addCondition)
+		{
+			Item itemToAdd = new Item(inventoryItem.getItemName(), inventoryItem.getItemCode(), inventoryItem.getItemPrice());
+			itemToAdd.setItemCount(0);
+			items.add(itemToAdd);
 		}
 		cartSize++;
 		for (Item item : items)

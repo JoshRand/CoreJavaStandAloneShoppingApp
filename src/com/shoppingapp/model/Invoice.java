@@ -11,8 +11,6 @@ public class Invoice
 	{
 		public List<Item> copyItems(List<Item> items);
 	}
-
-	private static int invCount = 0;
 	private int invNumber = 0;
 	private double total;
 	private int itemCountLength = 0;
@@ -22,10 +20,10 @@ public class Invoice
 	
 	private List<Item> items = new ArrayList<Item>();
 
-	public Invoice(String userName, List<Item> items, double total)
+	public Invoice(int invNumber, String userName, List<Item> items, double total)
 	{
 		super();
-		this.invNumber = ++invCount;
+		this.invNumber = invNumber;
 		this.userName = userName;
 		
 		ItemInterface f = ((itemList) -> {
@@ -41,6 +39,10 @@ public class Invoice
 		this.items = f.copyItems(items);
 		this.total = total;
 		
+	}
+	public Invoice()
+	{
+		super();
 	}
 	public int getInvNumber()
 	{
