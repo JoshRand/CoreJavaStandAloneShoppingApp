@@ -1,17 +1,12 @@
 package com.shoppingapp.controller;
 
-import java.io.BufferedReader;
-import java.io.Console;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-
-import com.mysql.cj.ParseInfo;
 import com.shoppingapp.model.Customer;
 import com.shoppingapp.model.Invoice;
 import com.shoppingapp.model.Item;
@@ -33,7 +28,7 @@ public class ShoppingController
 		FILE_STREAMS,
 		RELATIONAL_DATABASE
 	}
-	public DataMode dataMode = DataMode.FILE_STREAMS;
+	public DataMode dataMode = DataMode.COLLECTIONS;
 	
 	public enum State
 	{
@@ -48,7 +43,7 @@ public class ShoppingController
 	public boolean invoiceShow = false;
 	public boolean showOrders = false;
 	
-	
+	public FileStorageUtility fsu = new FileStorageUtility();
 	public ConsolePrinterUtility cpu = new ConsolePrinterUtility();
 	public Customer cust = null;
 	public ShoppingCart cart = new ShoppingCart();
@@ -71,14 +66,17 @@ public class ShoppingController
 			inventory.add(new Item("G-Pro Wireless", "Gpw1", 150.30));
 			inventory.add(new Item("Haiti", "Ha1", 69.50));
 			inventory.add(new Item("Model D", "Mo1", 73.50));
-			custList.add(new Customer("1","1"));
+			Customer custInit = new Customer("1", "1");
+			custInit.setInvoiceCount(custInit.getInvoiceCount()+1);
+			custList.add(custInit);
 			custList.add(new Customer("2","2"));
-			invoiceList.add(new Invoice("1", new ArrayList<Item>(), 202.20));
+			invoiceList.add(new Invoice(custInit.getInvoiceCount(),"1", new ArrayList<Item>(), 202.20));
 
 		}
 		if(dataMode == DataMode.FILE_STREAMS)
 		{
 			inventory = inventoryService.getInventoryFromFile();
+			invoiceList = invoiceService.getInvoices(true);
 		}
 		if(dataMode == DataMode.RELATIONAL_DATABASE)
 		{
@@ -138,13 +136,19 @@ public class ShoppingController
 					inventory.add(new Item("G-Pro Wireless", "Gpw1", 150.30));
 					inventory.add(new Item("Haiti", "Ha1", 69.50));
 					inventory.add(new Item("Model D", "Mo1", 73.50));
-					custList.add(new Customer("1","1"));
+					Customer custInit = new Customer("1", "1");
+					custInit.setInvoiceCount(custInit.getInvoiceCount()+1);
+					custList.add(custInit);
 					custList.add(new Customer("2","2"));
-					invoiceList.add(new Invoice("1", new ArrayList<Item>(), 202.20));
+					invoiceList.add(new Invoice(custInit.getInvoiceCount(),"1", new ArrayList<Item>(), 202.20));
 					continue;
 				}
 				else if(opt.equalsIgnoreCase("F"))
 				{
+					inventory.clear();
+					custList.clear();
+					invoiceList.clear();
+					invoiceList = invoiceService.getInvoices(true);
 					inventory = inventoryService.getInventoryFromFile();
 					dataMode = DataMode.FILE_STREAMS;
 					continue;
@@ -232,10 +236,10 @@ public class ShoppingController
 					case 4:
 						cart.add(inventory.get(option - 1));
 						
-						for (Item item : inventory)
-						{
-							System.out.println(item.getItemCount());
-						}
+//						for (Item item : inventory)
+//						{
+//							System.out.println(item.getItemCount());
+//						}
 						break;
 					case 5:
 						logout();
@@ -255,19 +259,29 @@ public class ShoppingController
 				switch (option)
 				{
 					case 1:
-						invoice = new Invoice(cust.getUserName(),cart.getItems(),cart.total());
+						cust.setInvoiceCount(cust.getInvoiceCount() + 1);
+						invoice = new Invoice(cust.getInvoiceCount(),cust.getUserName(),cart.getItems(),cart.total());
 						// check out
 						if(dataMode == DataMode.COLLECTIONS)
 						{
-							
 							invoiceList.add(invoice);
 						}
 						else if(dataMode == DataMode.FILE_STREAMS) {
-							
+							custList = custService.getAllCustomersFromFileStream();
+							for (Customer customer : custList)
+							{
+								if(customer.getUserName().equalsIgnoreCase(cust.getUserName()))
+								{
+									customer.setInvoiceCount(customer.getInvoiceCount() + 1);
+								}
+							}
+							custService.updateAllCustomers(custList);
+							invoiceService.saveInvoice(invoice, true);
+							invoiceList = invoiceService.getInvoices(true);
 						}
 						else if(dataMode == DataMode.RELATIONAL_DATABASE)
 						{
-							invoiceService.saveInvoice(invoice);
+							invoiceService.saveInvoice(invoice, false);
 							invoiceList = invoiceService.getInvoices();
 						}
 						
@@ -412,6 +426,7 @@ public class ShoppingController
 		List<Invoice> foundOrders = new ArrayList<Invoice>();
 		for (Invoice invoice : invoiceList)
 		{
+			//System.out.println(invoiceList.toString());
 			if(cust.getUserName().equalsIgnoreCase(invoice.getUserName()))
 			{
 				foundOrders.add(invoice);
@@ -433,7 +448,7 @@ public class ShoppingController
 			}
 			
 			
-			System.out.println(opt);
+			//System.out.println(opt);
 			if(opt.equalsIgnoreCase("Q"))
 			{
 				invoiceShow = false;
@@ -530,8 +545,19 @@ public class ShoppingController
 									}
 									else if(dataMode == DataMode.FILE_STREAMS)
 									{
-										
-										
+										invoice = invoiceFind;
+										double total = 0;
+										itemToChange.setItemCount(itemToChange.getItemCount()-1);
+										for (Item item : invoiceFind.getItems())
+										{
+											total += item.getItemCount() * item.getItemPrice();
+										}
+										invoiceFind.setTotal(total);
+//										for (Invoice invoice : invoiceList)
+//										{
+//											if(invoiceFind.get)
+//										}
+										invoiceService.updateInvoiceList(invoiceList);
 									}
 									else if(dataMode == DataMode.RELATIONAL_DATABASE)
 									{

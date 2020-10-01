@@ -1,0 +1,129 @@
+{
+invNumber:1,
+total:4355.599999999999,
+userName:1,
+creationDate:2020-10-01T13:34:45.371874300,
+items:[
+	{
+	itemName:Jerry
+	itemCode:Je1
+	itemPrice:2000.0
+	itemCount:2
+	}
+	{
+	itemName:G-Pro
+	itemCode:Gpw1
+	itemPrice:159.0
+	itemCount:1
+	}
+	{
+	itemName:Haiti
+	itemCode:Ha1
+	itemPrice:60.2
+	itemCount:2
+	}
+	{
+	itemName:Model
+	itemCode:Mo1
+	itemPrice:76.2
+	itemCount:1
+	}
+	
+:itemsEnd]
+},{
+invNumber:2,
+total:295.4,
+userName:1,
+creationDate:2020-10-01T14:46:48.861560700,
+items:[
+	{
+	itemName:Jerry
+	itemCode:Je1
+	itemPrice:2000.0
+	itemCount:0
+	}
+	{
+	itemName:G-Pro
+	itemCode:Gpw1
+	itemPrice:159.0
+	itemCount:1
+	}
+	{
+	itemName:Haiti
+	itemCode:Ha1
+	itemPrice:60.2
+	itemCount:1
+	}
+	{
+	itemName:Model
+	itemCode:Mo1
+	itemPrice:76.2
+	itemCount:1
+	}
+	
+:itemsEnd]
+},{
+invNumber:3,
+total:2295.3999999999996,
+userName:1,
+creationDate:2020-10-01T15:36:43.265360500,
+items:[
+	{
+	itemName:Jerry
+	itemCode:Je1
+	itemPrice:2000.0
+	itemCount:1
+	}
+	{
+	itemName:G-Pro
+	itemCode:Gpw1
+	itemPrice:159.0
+	itemCount:1
+	}
+	{
+	itemName:Haiti
+	itemCode:Ha1
+	itemPrice:60.2
+	itemCount:1
+	}
+	{
+	itemName:Model
+	itemCode:Mo1
+	itemPrice:76.2
+	itemCount:1
+	}
+	
+:itemsEnd]
+},{
+invNumber:4,
+total:18295.4,
+userName:1,
+creationDate:2020-10-01T15:37:25.766779100,
+items:[
+	{
+	itemName:Jerry
+	itemCode:Je1
+	itemPrice:2000.0
+	itemCount:9
+	}
+	{
+	itemName:Haiti
+	itemCode:Ha1
+	itemPrice:60.2
+	itemCount:1
+	}
+	{
+	itemName:G-Pro
+	itemCode:Gpw1
+	itemPrice:159.0
+	itemCount:1
+	}
+	{
+	itemName:Model
+	itemCode:Mo1
+	itemPrice:76.2
+	itemCount:1
+	}
+	
+:itemsEnd]
+},

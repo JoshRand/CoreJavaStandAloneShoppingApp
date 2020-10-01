@@ -42,7 +42,8 @@ public class UserDaoImpl implements UserDao
 			{
 				Connection con = getConnection();
 				Statement statemnt = con.createStatement();
-				statemnt.execute("insert into customers(userName,userPass)values('"+cust.getUserName()+"','"+cust.getUserPass()+"')");
+				statemnt.execute("insert into customers(userName,userPass,invoiceCount)values('"
+						+cust.getUserName()+"','"+cust.getUserPass()+"','"+cust.getInvoiceCount()+"')");
 				
 			}
 		

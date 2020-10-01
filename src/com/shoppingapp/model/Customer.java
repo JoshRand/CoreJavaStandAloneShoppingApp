@@ -4,6 +4,16 @@ public class Customer
 {
 	private String userName;
 	private String userPass;
+	private int invoiceCount = 0;
+	
+	public void setInvoiceCount(int invoiceCount)
+	{
+		this.invoiceCount = invoiceCount;
+	}
+	public int getInvoiceCount()
+	{
+		return invoiceCount;
+	}
 	public String getUserName()
 	{
 		return userName;
@@ -25,6 +35,10 @@ public class Customer
 		super();
 		this.userName = userName;
 		this.userPass = userPass;
+	}
+	public Customer()
+	{
+		super();
 	}
 	@Override
 	public String toString()

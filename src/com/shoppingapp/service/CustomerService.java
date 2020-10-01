@@ -11,4 +11,6 @@ public interface CustomerService
 	public Customer loginFileStreams(String userName, String userPass);
 	public void createStreamCust(Customer cust);
 	public void createCustomer(Customer cust);
+	public void updateAllCustomers(List<Customer> custs);
+	public List<Customer> getAllCustomersFromFileStream();
 }

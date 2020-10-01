@@ -65,4 +65,18 @@ public class CustomerServiceImpl implements CustomerService
 		
 	}
 
+	@Override
+	public List<Customer> getAllCustomersFromFileStream()
+	{
+		
+		return fsu.getCustomers();
+	}
+
+	@Override
+	public void updateAllCustomers(List<Customer> custs)
+	{
+		fsu.updateAllCustomersToFile(custs);
+		
+	}
+
 }

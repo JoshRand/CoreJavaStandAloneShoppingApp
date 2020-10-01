@@ -5,11 +5,13 @@ import java.util.List;
 import com.shoppingapp.dao.InvoiceDao;
 import com.shoppingapp.dao.InvoiceDaoImpl;
 import com.shoppingapp.model.Invoice;
+import com.shoppingapp.utility.FileStorageUtility;
 
 
 public class InvoiceServiceImpl implements InvoiceService
 {
 	InvoiceDao invoiceDao = new InvoiceDaoImpl();
+	FileStorageUtility fsu = new FileStorageUtility();
 	
 	@Override
 	public List<Invoice> getInvoices()
@@ -18,9 +20,12 @@ public class InvoiceServiceImpl implements InvoiceService
 	}
 
 	@Override
-	public void saveInvoice(Invoice invoice)
+	public void saveInvoice(Invoice invoice, boolean fileStream)
 	{
-		invoiceDao.save(invoice);
+		if(!fileStream)
+			invoiceDao.save(invoice);
+		else
+			fsu.saveInvoiceToFile(invoice);
 		
 	}
 
@@ -28,6 +33,24 @@ public class InvoiceServiceImpl implements InvoiceService
 	public void updateInvoice(int invNumber, String userName, double total, String itemCode, int itemCount)
 	{
 		invoiceDao.update(invNumber, userName, total, itemCode, itemCount);
+		
+	}
+
+	@Override
+	public List<Invoice> getInvoices(boolean fileStream)
+	{
+		return fsu.getInvoices();
+	}
+
+	@Override
+	public void updateInvoiceList(List<Invoice> invoices)
+	{
+//		for (Invoice invoice : invoices)
+//		{
+//			System.out.println(invoice.toString());
+//		}
+		
+		fsu.updateAllInvoicesToFile(invoices);
 		
 	}
 

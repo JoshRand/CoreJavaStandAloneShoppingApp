@@ -50,8 +50,7 @@ public class InvoiceDaoImpl implements InvoiceDao
 			// Gets all invoices
 			while(rs.next()) 
 			{
-				invoice = new Invoice(rs.getString(4), new ArrayList<Item>(), rs.getDouble(3));
-				invoice.setInvNumber(rs.getInt(2));
+				invoice = new Invoice(rs.getInt(2),rs.getString(4), new ArrayList<Item>(), rs.getDouble(3));
 				invoices.add(invoice);
 				
 			}
