@@ -16,12 +16,17 @@ public class CustomerServiceImpl implements CustomerService
 	@Override
 	public Customer login(String userName, String userPass)
 	{
+		
 		Customer cust = userDao.findByUserName(userName);
+		
+		System.out.println(cust.getUserName() + " is being actively searched for");
+		System.out.println(cust.getUserPass() + " with password");
 		if(userName.equalsIgnoreCase(cust.getUserName())
 				&&userPass.equalsIgnoreCase(cust.getUserPass()))
 		{
 			return cust;
 		}
+		System.out.println("login server returning null");
 		return null;
 	}
 	

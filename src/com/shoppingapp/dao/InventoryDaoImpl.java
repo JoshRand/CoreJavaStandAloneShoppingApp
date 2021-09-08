@@ -70,7 +70,7 @@ public class InventoryDaoImpl implements InventoryDao
 			
 			while(rs.next()) 
 			{
-				inventory.add(new Item(rs.getString(2),rs.getString(3),rs.getDouble(4),rs.getInt(5)));
+				inventory.add(new Item(rs.getString(1),rs.getString(2),rs.getDouble(3),rs.getInt(4)));
 				
 			}
 			return inventory;

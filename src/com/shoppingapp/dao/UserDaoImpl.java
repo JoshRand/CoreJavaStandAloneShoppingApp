@@ -80,10 +80,10 @@ public class UserDaoImpl implements UserDao
 					"select * from customers where userName = ?");
 			ps.setString(1, userName);
 			ResultSet rs = ps.executeQuery();
-			
+			System.out.println("inside find by userName (mysql)");
 			if(rs.next()) 
 			{
-				cust = new Customer(rs.getString(2),rs.getString(3));
+				cust = new Customer(rs.getString(1),rs.getString(2));
 				return cust;
 			}
 			else
